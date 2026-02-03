@@ -1,104 +1,52 @@
 body {
   font-family: Arial, sans-serif;
-  background: #dff7f1;
+  background: #0f172a;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  width: 400px;
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 12px;
   text-align: center;
 }
 
-.screen {
-  display: none;
-  padding: 20px;
-}
-
-.screen.active {
-  display: block;
-}
-
-input, textarea {
-  width: 80%;
-  padding: 10px;
-  margin: 10px 0;
-  border-radius: 12px;
+textarea {
+  width: 100%;
+  height: 100px;
+  border-radius: 8px;
   border: none;
-  font-size: 16px;
+  padding: 10px;
+  margin-bottom: 10px;
+  resize: none;
 }
 
 button {
-  padding: 10px 25px;
-  border-radius: 20px;
+  background: #38bdf8;
+  color: #000;
   border: none;
-  background: #6ad4c7;
-  color: white;
-  font-size: 16px;
+  padding: 10px 15px;
+  border-radius: 8px;
   cursor: pointer;
+  font-weight: bold;
 }
 
-#monster-container {
-  position: relative;
-  width: 320px;
-  margin: 0 auto;
+button:hover {
+  background: #0ea5e9;
 }
 
-#monster-base {
-  width: 100%;
+#status {
+  margin: 10px 0;
 }
 
-/* OJOS */
-.eye {
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  background: white;
-  border-radius: 50%;
-  overflow: hidden;
-}
-
-.left-eye { top: 120px; left: 95px; }
-.right-eye { top: 120px; right: 95px; }
-
-.pupil {
-  width: 12px;
-  height: 12px;
-  background: black;
-  border-radius: 50%;
-  position: absolute;
-  top: 9px;
-  left: 9px;
-  transition: transform 0.05s linear;
-}
-
-/* BOCA */
-.mouth {
-  position: absolute;
-  width: 50px;
-  height: 18px;
-  background: black;
-  border-radius: 0 0 25px 25px;
-  top: 185px;
-  left: 50%;
-  transform: translateX(-50%);
-  transition: height 0.2s;
-}
-
-.mouth.talking {
-  height: 35px;
-}
-
-.tooth {
-  width: 6px;
-  height: 8px;
-  background: white;
-  position: absolute;
-  bottom: 0;
-}
-
-.tooth.left { left: 14px; }
-.tooth.right { right: 14px; }
-
-.chat {
-  margin-top: 20px;
-}
-
-#answer {
+img {
+  max-width: 100%;
   margin-top: 10px;
-  font-size: 18px;
+  border-radius: 8px;
+  display: none;
 }

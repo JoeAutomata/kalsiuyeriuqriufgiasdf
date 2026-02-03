@@ -7,13 +7,12 @@ const HF_TOKEN = process.env.HF;
 
 app.use(express.json());
 
-/* ========= FRONTEND INLINE ========= */
+/* ========= FRONTEND ========= */
 app.get("/", (req, res) => {
-  res.send(`
-<!DOCTYPE html>
+  res.send(`<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>🎨 Generador de Imágenes IA</title>
 
   <style>
@@ -22,8 +21,8 @@ app.get("/", (req, res) => {
       font-family: Arial, sans-serif;
       color: white;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       height: 100vh;
       margin: 0;
     }
@@ -32,14 +31,14 @@ app.get("/", (req, res) => {
       background: rgba(0,0,0,0.35);
       padding: 25px;
       border-radius: 16px;
-      width: 360px;
+      width: 380px;
       text-align: center;
       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
 
     textarea {
       width: 100%;
-      height: 80px;
+      height: 90px;
       border-radius: 8px;
       border: none;
       padding: 10px;
@@ -75,15 +74,15 @@ app.get("/", (req, res) => {
     }
   </style>
 </head>
-<body>
 
+<body>
   <div class="card">
     <h2>🎨 Generador de Imágenes IA</h2>
 
     <textarea id="prompt" placeholder="Un dragón amigable estilo caricatura, colores suaves, para niños"></textarea>
     <button onclick="generar()">Generar imagen</button>
 
-    <div class="error" id="error"></div>
+    <div id="error" class="error"></div>
     <img id="resultado" />
   </div>
 
@@ -118,10 +117,8 @@ app.get("/", (req, res) => {
       }
     }
   </script>
-
 </body>
-</html>
-`);
+</html>`);
 });
 
 /* ========= BACKEND HF ========= */
@@ -134,7 +131,7 @@ app.post("/generate-image", async (req, res) => {
       {
         method: "POST",
         headers: {
-          Authorization: \`Bearer \${HF_TOKEN}\`,
+          Authorization: "Bearer " + HF_TOKEN,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
@@ -148,18 +145,21 @@ app.post("/generate-image", async (req, res) => {
 
     if (!contentType || !contentType.startsWith("image/")) {
       const text = await hfRes.text();
-      return res.status(500).json({ error: "HF no devolvió imagen", detalle: text });
+      return res.status(500).json({
+        error: "HF no devolvió imagen",
+        detalle: text
+      });
     }
 
     const buffer = Buffer.from(await hfRes.arrayBuffer());
 
     res.json({
-      image: \`data:image/png;base64,\${buffer.toString("base64")}\`
+      image: "data:image/png;base64," + buffer.toString("base64")
     });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error interno" });
+    console.error("🔥 ERROR:", err);
+    res.status(500).json({ error: "Error interno backend" });
   }
 });
 

@@ -91,23 +91,24 @@ button:hover {
 
 <script>
 async function crear() {
-  const nombre = nombre.value;
-  const edad = edad.value;
+  const nombreInput = document.getElementById("nombre").value;
+  const edadInput = document.getElementById("edad").value;
   const desc = document.getElementById("desc").value;
 
-  if (!nombre || !desc) {
+  if (!nombreInput || !desc) {
     alert("Faltan datos 🙂");
     return;
   }
 
   document.getElementById("setup").classList.add("hidden");
   document.getElementById("juego").classList.remove("hidden");
+
   document.getElementById("saludo").innerText =
-    `Hola ${nombre} 👋✨ Tu deMonIA está naciendo...`;
+    `Hola ${nombreInput} 👋✨ Tu deMonIA está naciendo...`;
 
   const prompt =
-    `Cute fluffy kawaii monster for a ${edad} year old child, pastel colors,
-    friendly smile, big eyes, children illustration, soft lighting.
+    `Cute fluffy kawaii monster for a ${edadInput} year old child,
+    pastel colors, big eyes, friendly smile, cartoon illustration.
     Description: ${desc}`;
 
   const res = await fetch("/generate-image", {
@@ -132,5 +133,7 @@ function reset() {
 }
 </script>
 
+
 </body>
 </html>
+

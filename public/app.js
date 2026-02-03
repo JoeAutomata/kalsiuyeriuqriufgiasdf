@@ -1,32 +1,25 @@
-const btn = document.getElementById("generate");
-const promptInput = document.getElementById("prompt");
-const status = document.getElementById("status");
-const img = document.getElementById("result");
+async function generar() {
+  const prompt = document.getElementById("prompt").value;
+  const estado = document.getElementById("estado");
+  const img = document.getElementById("imagen");
 
-btn.onclick = async () => {
-  const prompt = promptInput.value.trim();
-  if (!prompt) return;
-
-  status.textContent = "⏳ Generando imagen...";
+  estado.innerText = "🧠 Pensando...";
   img.src = "";
 
-  try {
-    const res = await fetch("/generate-image", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt })
-    });
+  const res = await fetch("/generate-image", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      prompt: prompt + ", cute kawaii monster, simple shapes, white background"
+    })
+  });
 
-    const data = await res.json();
+  const data = await res.json();
 
-    if (data.image) {
-      img.src = data.image;
-      status.textContent = "✅ Imagen generada";
-    } else {
-      status.textContent = "⚠️ No se pudo generar imagen";
-    }
-
-  } catch (e) {
-    status.textContent = "❌ Error de conexión";
+  if (data.image) {
+    img.src = data.image;
+    estado.innerText = "✨ ¡Tu deMonIA nació!";
+  } else {
+    estado.innerText = "⚠️ No se pudo generar imagen";
   }
-};
+}

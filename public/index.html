@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>deMonIA - Amigos Peludos</title>
+    <style>
+        :root { --púrpura: #6a0572; --rosa: #ff69b4; --celeste: #e0f7fa; }
+        body { font-family: 'Comic Sans MS', cursive; background: var(--celeste); display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 550px; text-align: center; }
+        input, textarea { width: 90%; padding: 10px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; }
+        button { background: var(--rosa); color: white; border: none; padding: 15px 30px; border-radius: 50px; cursor: pointer; font-size: 18px; font-weight: bold; }
+        button:hover { transform: scale(1.05); background: #ff478e; }
+        #canvas-container { position: relative; width: 400px; height: 400px; margin: 20px auto; display: none; }
+        canvas { background: #fff; border-radius: 50%; border: 5px solid var(--púrpura); cursor: crosshair; }
+        .hidden { display: none; }
+        #chat-box { height: 100px; overflow-y: auto; background: #f9f9f9; padding: 10px; border-radius: 10px; margin-top: 10px; text-align: left; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>deMonIA 😈✨</h1>
+    
+    <div id="setup">
+        <input type="text" id="apiKey" placeholder="Pega tu Gemini API Key aquí">
+        <input type="text" id="nombreNiño" placeholder="¿Cómo te llamas?">
+        <input type="number" id="edadNiño" placeholder="¿Cuántos años tienes?">
+        <textarea id="desc" placeholder="¿Cómo es tu demonio? (ej: azul con cuernos de gominola y alas de nube)"></textarea>
+        <button onclick="comenzar()">¡Dar vida a mi deMonIA!</button>
+    </div>
+
+    <div id="juego" class="hidden">
+        <h2 id="saludo"></h2>
+        <div id="canvas-container">
+            <canvas id="creatureCanvas" width="400" height="400"></canvas>
+        </div>
+        <div id="chat-box"></div>
+        <input type="text" id="pregunta" placeholder="Pregúntale algo a tu deMonIA...">
+        <button onclick="preguntar()">Hablar</button>
+        <button onclick="reset()" style="background:#aaa; font-size: 12px; margin-top: 10px;">Crear otro</button>
+    </div>
+</div>
+
+<script>
+    let config = { apiKey: '', nombre: '', edad: '', criatura: null };
+    let mouse = { x: 200, y: 200 };
+    const canvas = document.getElementById('creatureCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Cargar datos guardados
+    window.onload = () => {
+        if(localStorage.getItem('demonia_key')) document.getElementById('apiKey').value = localStorage.getItem('demonia_key');
+        if(localStorage.getItem('demonia_nombre')) document.getElementById('nombreNiño').value = localStorage.getItem('demonia_nombre');
+    };
+
+    async function comenzar() {
+        config.apiKey = document.getElementById('apiKey').value;
+        config.nombre = document.getElementById('nombreNiño').value;
+        config.edad = document.getElementById('edadNiño').value;
+        const desc = document.getElementById('desc').value;
+
+        if(!config.apiKey || !config.nombre) return alert("¡Faltan datos!");
+
+        localStorage.setItem('demonia_key', config.apiKey);
+        localStorage.setItem('demonia_nombre', config.nombre);
+
+        document.getElementById('setup').classList.add('hidden');
+        document.getElementById('juego').classList.remove('hidden');
+        document.getElementById('canvas-container').style.display = 'block';
+
+        await generarCriatura(desc);
+    }
+
+    async function generarCriatura(desc) {
+        const prompt = `Actúa como un diseñador de monstruos kawaii. El niño quiere un deMonIA así: "${desc}". 
+        Responde ÚNICAMENTE con un objeto JSON (sin markdown) con esta estructura:
+        {"nombre": "Nombre", "color": "#hex", "ojos": {"y": 180, "distancia": 60, "tamaño": 25}, "boca": {"y": 250, "ancho": 60}, "cuernos": "tipo"}`;
+
+        const resp = await llamarGemini(prompt);
+        config.criatura = JSON.parse(resp.replace(/```json|```/g, ''));
+        document.getElementById('saludo').innerText = "¡Hola! Soy " + config.criatura.nombre;
+        animar();
+    }
+
+    async function llamarGemini(prompt) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${config.apiKey}`;
+        const response = await fetch(url, {
+            method: 'POST',
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+        const data = await response.json();
+        return data.candidates[0].content.parts[0].text;
+    }
+
+    async function preguntar() {
+        const q = document.getElementById('pregunta').value;
+        const box = document.getElementById('chat-box');
+        box.innerHTML += `<b>Tú:</b> ${q}<br>`;
+        
+        const prompt = `${config.nombre} tiene ${config.edad} años. Tú eres su amigo deMonIA llamado ${config.criatura.nombre}. Responde de forma muy dulce, corta y juguetona a: ${q}`;
+        const r = await llamarGemini(prompt);
+        
+        box.innerHTML += `<b>${config.criatura.nombre}:</b> ${r}<br>`;
+        box.scrollTop = box.scrollHeight;
+        document.getElementById('pregunta').value = '';
+    }
+
+    canvas.onmousemove = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - rect.left;
+        mouse.y = e.clientY - rect.top;
+    };
+
+    function drawEye(x, y, size) {
+        // Blanco del ojo
+        ctx.fillStyle = "white";
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Pupila siguiendo el mouse (Cinemática simple)
+        const angle = Math.atan2(mouse.y - y, mouse.x - x);
+        const dist = Math.min(size/2, Math.hypot(mouse.x - x, mouse.y - y) / 10);
+        const px = x + Math.cos(angle) * dist;
+        const py = y + Math.sin(angle) * dist;
+
+        ctx.fillStyle = "black";
+        ctx.beginPath();
+        ctx.arc(px, py, size/2, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Brillo kawaii
+        ctx.fillStyle = "white";
+        ctx.beginPath();
+        ctx.arc(px - 4, py - 4, 3, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    function animar() {
+        if(!config.criatura) return;
+        ctx.clearRect(0,0,400,400);
+        const c = config.criatura;
+
+        // Dibujar Cuerpo Peludo (Simplificado con círculos)
+        ctx.fillStyle = c.color;
+        ctx.beginPath();
+        ctx.arc(200, 200, 150, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Ojos
+        drawEye(200 - c.ojos.distancia, c.ojos.y, c.ojos.tamaño);
+        drawEye(200 + c.ojos.distancia, c.ojos.y, c.ojos.tamaño);
+
+        // Boca (siempre sonriendo)
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(200, c.boca.y, c.boca.ancho/2, 0.2 * Math.PI, 0.8 * Math.PI);
+        ctx.stroke();
+
+        requestAnimationFrame(animar);
+    }
+
+    function reset() { location.reload(); }
+</script>
+
+</body>
+</html>

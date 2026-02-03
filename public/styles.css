@@ -1,0 +1,104 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #dff7f1;
+  text-align: center;
+}
+
+.screen {
+  display: none;
+  padding: 20px;
+}
+
+.screen.active {
+  display: block;
+}
+
+input, textarea {
+  width: 80%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+}
+
+button {
+  padding: 10px 25px;
+  border-radius: 20px;
+  border: none;
+  background: #6ad4c7;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#monster-container {
+  position: relative;
+  width: 320px;
+  margin: 0 auto;
+}
+
+#monster-base {
+  width: 100%;
+}
+
+/* OJOS */
+.eye {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: white;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.left-eye { top: 120px; left: 95px; }
+.right-eye { top: 120px; right: 95px; }
+
+.pupil {
+  width: 12px;
+  height: 12px;
+  background: black;
+  border-radius: 50%;
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  transition: transform 0.05s linear;
+}
+
+/* BOCA */
+.mouth {
+  position: absolute;
+  width: 50px;
+  height: 18px;
+  background: black;
+  border-radius: 0 0 25px 25px;
+  top: 185px;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: height 0.2s;
+}
+
+.mouth.talking {
+  height: 35px;
+}
+
+.tooth {
+  width: 6px;
+  height: 8px;
+  background: white;
+  position: absolute;
+  bottom: 0;
+}
+
+.tooth.left { left: 14px; }
+.tooth.right { right: 14px; }
+
+.chat {
+  margin-top: 20px;
+}
+
+#answer {
+  margin-top: 10px;
+  font-size: 18px;
+}

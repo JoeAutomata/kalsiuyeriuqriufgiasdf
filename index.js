@@ -127,7 +127,7 @@ app.post("/generate-image", async (req, res) => {
     const { prompt } = req.body;
 
     const hfRes = await fetch(
-      "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0",
+      "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-xl-base-1.0"
       {
         method: "POST",
         headers: {

@@ -2,140 +2,93 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>deMonIA 😈✨</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mascota Virtual IA</title>
 
 <style>
-:root {
-  --púrpura: #6a0572;
-  --rosa: #ff69b4;
-  --celeste: #e0f7fa;
-}
-
 body {
-  font-family: "Comic Sans MS", cursive;
-  background: var(--celeste);
+  font-family: Arial, sans-serif;
+  background: #0f172a;
+  color: #e5e7eb;
   display: flex;
   justify-content: center;
-  padding: 20px;
+  align-items: center;
+  height: 100vh;
 }
 
-.card {
-  background: white;
+.container {
+  background: #020617;
   padding: 20px;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.15);
-  width: 100%;
-  max-width: 560px;
-  text-align: center;
-}
-
-input, textarea {
-  width: 90%;
-  padding: 10px;
-  margin: 10px 0;
   border-radius: 12px;
-  border: 2px solid #ddd;
-  font-size: 16px;
+  width: 360px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.6);
+}
+
+input, textarea, button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
 }
 
 button {
-  background: var(--rosa);
-  color: white;
-  border: none;
-  padding: 14px 30px;
-  border-radius: 40px;
-  font-size: 18px;
-  cursor: pointer;
+  background: #38bdf8;
+  color: #020617;
   font-weight: bold;
+  cursor: pointer;
 }
 
 button:hover {
-  background: #ff4795;
+  background: #0ea5e9;
 }
 
-.hidden {
-  display: none;
-}
-
-#image-box {
-  margin-top: 20px;
-}
-
-#image-box img {
+img {
+  margin-top: 15px;
   width: 100%;
-  border-radius: 20px;
-  border: 4px solid var(--púrpura);
+  border-radius: 10px;
 }
 </style>
 </head>
 
 <body>
+<div class="container">
+  <h2>Mascota Virtual 🐾</h2>
 
-<div class="card">
-  <h1>deMonIA 😈✨</h1>
+  <input id="nombre" placeholder="Nombre del niño">
+  <textarea id="descripcion" placeholder="Describe tu mascota (ojos, boca, color, personalidad)"></textarea>
 
-  <div id="setup">
-    <input id="nombre" placeholder="¿Cómo te llamas?">
-    <input id="edad" type="number" placeholder="¿Cuántos años tienes?">
-    <textarea id="desc" placeholder="Describe tu criatura 🐾✨"></textarea>
-    <button onclick="crear()">Crear mi deMonIA</button>
-  </div>
+  <button onclick="crearMascota()">Crear mascota</button>
 
-  <div id="juego" class="hidden">
-    <h2 id="saludo"></h2>
-    <div id="image-box"></div>
-    <button onclick="reset()" style="margin-top:15px;background:#aaa;font-size:14px;">Crear otro</button>
-  </div>
+  <img id="resultado" style="display:none;">
 </div>
 
 <script>
-async function crear() {
-  const nombreInput = document.getElementById("nombre").value;
-  const edadInput = document.getElementById("edad").value;
-  const desc = document.getElementById("desc").value;
+async function crearMascota() {
+  const nombre = document.getElementById("nombre").value;
+  const descripcion = document.getElementById("descripcion").value;
 
-  if (!nombreInput || !desc) {
-    alert("Faltan datos 🙂");
+  if (!nombre || !descripcion) {
+    alert("Completá todos los campos");
     return;
   }
 
-  document.getElementById("setup").classList.add("hidden");
-  document.getElementById("juego").classList.remove("hidden");
-
-  document.getElementById("saludo").innerText =
-    `Hola ${nombreInput} 👋✨ Tu deMonIA está naciendo...`;
-
-  const prompt =
-    `Cute fluffy kawaii monster for a ${edadInput} year old child,
-    pastel colors, big eyes, friendly smile, cartoon illustration.
-    Description: ${desc}`;
-
-  const res = await fetch("/generate-image", {
+  const res = await fetch("https://kalsiuyeriuqrufgiasdf.onrender.com/generar", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt })
+    body: JSON.stringify({ nombre, descripcion })
   });
 
   const data = await res.json();
 
-  if (!data.image) {
-    alert("❌ Error:\n" + JSON.stringify(data, null, 2));
+  if (data.error) {
+    alert(data.error);
     return;
   }
 
-
-  document.getElementById("image-box").innerHTML =
-    `<img src="${data.image}" alt="deMonIA">`;
-}
-
-function reset() {
-  location.reload();
+  const img = document.getElementById("resultado");
+  img.src = data.image;
+  img.style.display = "block";
 }
 </script>
-
-
 </body>
 </html>
-
-

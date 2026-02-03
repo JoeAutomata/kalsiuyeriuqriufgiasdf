@@ -1,13 +1,16 @@
 import express from "express";
 import fetch from "node-fetch";
+import path from "path";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const HF_TOKEN = process.env.HF;
 
+// 🔹 middleware CORRECTO
 app.use(express.json());
 app.use(express.static("public"));
 
+// 🔹 endpoint imagen
 app.post("/generate-image", async (req, res) => {
   try {
     const { prompt } = req.body;
@@ -27,11 +30,11 @@ app.post("/generate-image", async (req, res) => {
       }
     );
 
-    const contentType = response.headers.get("content-type");
+    const type = response.headers.get("content-type");
 
-    if (!contentType || !contentType.startsWith("image")) {
-      const text = await response.text();
-      console.error("HF ERROR:", text);
+    if (!type || !type.startsWith("image")) {
+      const err = await response.text();
+      console.error("HF ERROR:", err);
       return res.status(500).json({ error: "HF no devolvió imagen" });
     }
 
@@ -41,7 +44,7 @@ app.post("/generate-image", async (req, res) => {
     });
 
   } catch (e) {
-    console.error(e);
+    console.error("SERVER ERROR:", e);
     res.status(500).json({ error: "Error interno" });
   }
 });

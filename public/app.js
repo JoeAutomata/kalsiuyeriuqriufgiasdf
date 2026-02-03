@@ -3,7 +3,7 @@ async function generar() {
   const estado = document.getElementById("estado");
   const img = document.getElementById("imagen");
 
-  estado.innerText = "🧠 Pensando...";
+  estado.innerText = "🧠 Creando...";
   img.src = "";
 
   const res = await fetch("/generate-image", {

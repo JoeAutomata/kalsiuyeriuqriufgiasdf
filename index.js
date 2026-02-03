@@ -11,49 +11,37 @@ app.use(express.static("public"));
 app.post("/generate-image", async (req, res) => {
   try {
     const { prompt } = req.body;
-    if (!prompt) {
-      return res.status(400).json({ error: "Prompt vacío" });
-    }
 
-    const hfResponse = await fetch(
-      "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0",
+    const response = await fetch(
+      "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1",
       {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${HF_TOKEN}`,
-          "Content-Type": "application/json",
-          "Accept": "image/png"
+          Authorization: `Bearer ${HF_TOKEN}`,
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           inputs: prompt,
-          options: {
-            wait_for_model: true
-          }
+          options: { wait_for_model: true }
         })
       }
     );
 
-    const contentType = hfResponse.headers.get("content-type");
+    const contentType = response.headers.get("content-type");
 
-    // ❌ HF devolvió JSON (error)
     if (!contentType || !contentType.startsWith("image")) {
-      const errorText = await hfResponse.text();
-      console.error("HF ERROR:", errorText);
-      return res.status(500).json({
-        error: "HF no devolvió una imagen"
-      });
+      const text = await response.text();
+      console.error("HF ERROR:", text);
+      return res.status(500).json({ error: "HF no devolvió imagen" });
     }
 
-    // ✅ HF devolvió imagen real
-    const buffer = await hfResponse.arrayBuffer();
-    const base64 = Buffer.from(buffer).toString("base64");
-
+    const buffer = Buffer.from(await response.arrayBuffer());
     res.json({
-      image: `data:image/png;base64,${base64}`
+      image: `data:image/png;base64,${buffer.toString("base64")}`
     });
 
-  } catch (err) {
-    console.error("SERVER ERROR:", err);
+  } catch (e) {
+    console.error(e);
     res.status(500).json({ error: "Error interno" });
   }
 });

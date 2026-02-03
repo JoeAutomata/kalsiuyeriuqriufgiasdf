@@ -1,54 +1,47 @@
 body {
-  font-family: "Segoe UI", sans-serif;
-  background: linear-gradient(135deg, #c3ecff, #fceabb);
-  min-height: 100vh;
+  background: linear-gradient(135deg, #e0f7fa, #ffd1dc);
+  font-family: "Comic Sans MS", cursive;
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 100vh;
 }
 
 .card {
   background: white;
   padding: 25px;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 500px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  border-radius: 25px;
+  width: 420px;
   text-align: center;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15);
 }
 
 textarea {
   width: 100%;
-  height: 90px;
-  border-radius: 10px;
+  height: 80px;
+  border-radius: 15px;
   padding: 10px;
   font-size: 15px;
-  border: 1px solid #ccc;
 }
 
 button {
-  margin-top: 12px;
-  padding: 12px;
-  width: 100%;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  background: #6c63ff;
+  margin-top: 10px;
+  background: #ff69b4;
   color: white;
+  border: none;
+  padding: 14px;
+  width: 100%;
+  border-radius: 40px;
+  font-size: 18px;
   cursor: pointer;
 }
 
 button:hover {
-  background: #584ee0;
-}
-
-#status {
-  margin-top: 10px;
-  font-weight: bold;
+  transform: scale(1.05);
 }
 
 img {
   margin-top: 15px;
-  max-width: 100%;
-  border-radius: 14px;
+  width: 100%;
+  border-radius: 20px;
 }

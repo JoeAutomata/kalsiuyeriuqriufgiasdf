@@ -120,9 +120,10 @@ async function crear() {
   const data = await res.json();
 
   if (!data.image) {
-    alert("⚠️ No se pudo generar la imagen");
+    alert("❌ Error:\n" + JSON.stringify(data, null, 2));
     return;
   }
+
 
   document.getElementById("image-box").innerHTML =
     `<img src="${data.image}" alt="deMonIA">`;
@@ -136,4 +137,5 @@ function reset() {
 
 </body>
 </html>
+
 

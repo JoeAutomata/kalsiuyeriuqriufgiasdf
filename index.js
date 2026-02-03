@@ -4,50 +4,55 @@ import path from "path";
 
 const app = express();
 app.use(express.json());
-
-// 👇 servir frontend
 app.use(express.static("public"));
 
 const PORT = process.env.PORT || 3000;
-const API_KEY = process.env.GEMINI_API_KEY;
+const HF_TOKEN = process.env.HF;
 
-// Ruta raíz → abre la ventana
+// ─────────────────────────────
+// HOME
+// ─────────────────────────────
 app.get("/", (req, res) => {
   res.sendFile(path.resolve("public/index.html"));
 });
 
-// Endpoint imagen
+// ─────────────────────────────
+// GENERAR IMAGEN
+// ─────────────────────────────
 app.post("/generate-image", async (req, res) => {
   try {
     const { prompt } = req.body;
-    if (!prompt) {
-      return res.status(400).json({ error: "Prompt requerido" });
+
+    if (!prompt || prompt.length < 3) {
+      return res.status(400).json({ error: "Prompt inválido" });
     }
 
+    console.log("🎨 Prompt:", prompt);
+
     const response = await axios.post(
-      "https://generativelanguage.googleapis.com/v1beta/models/imagen-3:generateImage",
-      {
-        prompt: prompt,
-        size: "1024x1024"
-      },
+      "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2",
+      { inputs: prompt },
       {
         headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": API_KEY
-        }
+          Authorization: `Bearer ${HF_TOKEN}`,
+          "Content-Type": "application/json"
+        },
+        responseType: "arraybuffer",
+        timeout: 120000 // ⏳ importante en Render
       }
     );
 
-    const imageBase64 = response.data?.data?.[0]?.b64_json;
+    const imageBase64 = Buffer.from(response.data).toString("base64");
 
     res.json({ image: imageBase64 });
 
-  } catch (err) {
-    console.error(err.response?.data || err.message);
-    res.status(500).json({ error: "Error generando imagen" });
+  } catch (error) {
+    console.error("❌ Error HF:", error.response?.data || error.message);
+    res.status(500).json({ error: "No se pudo generar la imagen" });
   }
 });
 
+// ─────────────────────────────
 app.listen(PORT, () =>
-  console.log(`🚀 Server running on port ${PORT}`)
+  console.log(`🚀 AI Image Generator running on port ${PORT}`)
 );

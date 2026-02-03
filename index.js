@@ -1,57 +1,42 @@
 import express from "express";
 import fetch from "node-fetch";
-import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const app = express();
-
-/* ===============================
-   CONFIGURACIÓN GENERAL
-================================ */
-app.use(cors());
-app.use(express.json({ limit: "5mb" }));
-
 const PORT = process.env.PORT || 3000;
+const HF_TOKEN = process.env.HF;
 
-/* ===============================
-   RUTA DE PRUEBA (IMPORTANTE)
-   Sirve para chequear que Render
-   esté levantando bien el servicio
-================================ */
+// fixes para ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// middlewares
+app.use(express.json({ limit: "2mb" }));
+app.use(express.static(path.join(__dirname, "public")));
+
+// health check
 app.get("/", (req, res) => {
   res.send("Backend Mascota IA funcionando OK 🚀");
 });
 
-/* ===============================
-   GENERAR IMAGEN CON HF
-================================ */
-app.post("/generar", async (req, res) => {
-  const { nombre, descripcion } = req.body;
-
-  if (!nombre || !descripcion) {
-    return res.status(400).json({
-      error: "Faltan datos (nombre o descripción)"
-    });
-  }
-
-  const prompt = `
-Mascota virtual infantil.
-Nombre: ${nombre}.
-Descripción: ${descripcion}.
-Estilo cartoon, amigable, colores suaves.
-Ojos grandes, simétricos y bien separados.
-Boca centrada y clara.
-Ilustración limpia, fondo simple.
-Alta calidad, sin texto, sin marcas.
-`;
-
+// generar imagen
+app.post("/generate-image", async (req, res) => {
   try {
+    const { prompt } = req.body;
+
+    if (!prompt) {
+      return res.status(400).json({ error: "Prompt vacío" });
+    }
+
     const hfResponse = await fetch(
-      "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0",
+      "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-xl-base-1.0",
       {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${process.env.HF}`,
-          "Content-Type": "application/json"
+          Authorization: `Bearer ${HF_TOKEN}`,
+          "Content-Type": "application/json",
+          Accept: "image/png"
         },
         body: JSON.stringify({
           inputs: prompt
@@ -60,10 +45,10 @@ Alta calidad, sin texto, sin marcas.
     );
 
     if (!hfResponse.ok) {
-      const errorText = await hfResponse.text();
-      console.error("HF ERROR:", errorText);
+      const text = await hfResponse.text();
       return res.status(500).json({
-        error: "Error en HuggingFace"
+        error: "HF no devolvió una imagen",
+        detail: text
       });
     }
 
@@ -74,17 +59,13 @@ Alta calidad, sin texto, sin marcas.
       image: `data:image/png;base64,${base64Image}`
     });
 
-  } catch (error) {
-    console.error("SERVER ERROR:", error);
-    res.status(500).json({
-      error: "Error interno del servidor"
-    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error interno del servidor" });
   }
 });
 
-/* ===============================
-   INICIAR SERVIDOR
-================================ */
+// start
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en puerto ${PORT}`);
+  console.log(`Servidor activo en puerto ${PORT}`);
 });

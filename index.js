@@ -17,7 +17,7 @@ app.get("/", (req, res) => {
 });
 
 // ─────────────────────────────
-// GENERAR IMAGEN
+// GENERAR IMAGEN (HUGGING FACE)
 // ─────────────────────────────
 app.post("/generate-image", async (req, res) => {
   try {
@@ -38,21 +38,47 @@ app.post("/generate-image", async (req, res) => {
           "Content-Type": "application/json"
         },
         responseType: "arraybuffer",
-        timeout: 120000 // ⏳ importante en Render
+        timeout: 120000,
+        validateStatus: () => true // ← permite leer JSON de error
       }
     );
 
-    const imageBase64 = Buffer.from(response.data).toString("base64");
+    const contentType = response.headers["content-type"];
 
-    res.json({ image: imageBase64 });
+    // ────────────────
+    // HF devuelve JSON (modelo cargando, rate limit, etc)
+    // ────────────────
+    if (contentType && contentType.includes("application/json")) {
+      const text = response.data.toString("utf8");
+      console.warn("⚠️ HF JSON:", text);
+
+      return res.json({
+        error: "El modelo se está iniciando ⏳ esperá unos segundos y reintentá"
+      });
+    }
+
+    // ────────────────
+    // HF devuelve imagen
+    // ────────────────
+    if (contentType && contentType.includes("image")) {
+      const imageBase64 = Buffer.from(response.data).toString("base64");
+      return res.json({ image: imageBase64 });
+    }
+
+    // ────────────────
+    // Respuesta inesperada
+    // ────────────────
+    return res.json({
+      error: "Respuesta inesperada del modelo"
+    });
 
   } catch (error) {
-    console.error("❌ Error HF:", error.response?.data || error.message);
-    res.status(500).json({ error: "No se pudo generar la imagen" });
+    console.error("❌ Error HF:", error.message);
+    res.status(500).json({ error: "Error interno del servidor" });
   }
 });
 
 // ─────────────────────────────
-app.listen(PORT, () =>
-  console.log(`🚀 AI Image Generator running on port ${PORT}`)
-);
+app.listen(PORT, () => {
+  console.log(`🚀 AI Image Generator running on port ${PORT}`);
+});

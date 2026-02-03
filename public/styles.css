@@ -1,31 +1,54 @@
 body {
-  font-family: Arial, sans-serif;
-  background: #f5f5f5;
+  font-family: "Segoe UI", sans-serif;
+  background: linear-gradient(135deg, #c3ecff, #fceabb);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
   text-align: center;
-  padding: 30px;
 }
 
 textarea {
-  width: 90%;
-  max-width: 500px;
-  height: 100px;
-  font-size: 16px;
+  width: 100%;
+  height: 90px;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 15px;
+  border: 1px solid #ccc;
 }
 
 button {
-  margin-top: 10px;
-  padding: 12px 20px;
+  margin-top: 12px;
+  padding: 12px;
+  width: 100%;
+  border: none;
+  border-radius: 10px;
   font-size: 16px;
+  background: #6c63ff;
+  color: white;
   cursor: pointer;
 }
 
+button:hover {
+  background: #584ee0;
+}
+
 #status {
-  margin: 15px;
+  margin-top: 10px;
   font-weight: bold;
 }
 
 img {
-  max-width: 400px;
-  margin-top: 20px;
-  border-radius: 12px;
+  margin-top: 15px;
+  max-width: 100%;
+  border-radius: 14px;
 }
